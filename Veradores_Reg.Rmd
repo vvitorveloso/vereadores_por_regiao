@@ -1,0 +1,328 @@
+---
+  title: "Estudo sobre as políticas de reabertura na cidade de São Paulo"
+author: "[Vitor Veloso](https://www.linkedin.com/in/vitor-veloso/)"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  word_document: default
+html_document: default
+pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+## Introdução:
+
+Análise dos vereadores eleitos por região
+
+
+```{r}
+library_load <- 
+  function(pkgload){
+    if(!pkgload %in% installed.packages()){install.packages(pkgload)
+      library(pkgload)
+    }
+    else{
+      library(pkgload)
+    }
+  }
+
+library_load("tidyverse")
+require("tidyverse") 
+library_load("sf")
+require("sf") 
+library_load("parsedate")
+require("parsedate") 
+
+
+# #escolhe o arquivo
+ file <- "/home/ochi/Documents/CPM/Vereadores_regiao/votacao_candidato_munzona_2016/votacao_candidato_munzona_2016_SP.csv"
+# #Verifica a codificação LINUX
+ encode <- as.character(read.table(pipe(paste("uchardet ",file))))
+ #Lê os dados  
+ CANDIDATO <- read.csv2(
+   file ,
+   fileEncoding=encode, 
+   header =TRUE ,
+   sep=";",
+   skipNul=TRUE,
+   na.strings=c("NA","NaN", " ","","null","undefined","#NULO#")) %>%
+   filter(CD_CARGO == "13") %>%
+   filter(CD_MUNICIPIO == "71072") %>%
+   filter(!DS_SIT_TOT_TURNO %in% c("SUPLENTE","NÃO ELEITO")) 
+ 
+   
+
+
+
+  
+  unique(C2$CD_CARGO)
+  
+  
+  CANDIDATO %>% filter(DS_SIT_TOT_TURNO==)
+  
+  
+  CANDIDATO %>% select(S_SIT_TOT_TURNO)%>%  group_by(DS_SIT_TOT_TURNO)# %>%
+  
+  unique(CANDIDATO$DS_SIT_TOT_TURNO)
+  
+C2 <-  CANDIDATO %>% filter(!DS_SIT_TOT_TURNO %in% c("SUPLENTE","NÃO ELEITO")) 
+unique(C2$DS_SIT_TOT_TURNO)  
+
+
+
+
+########################################################################3
+
+#####Mapa Distritos
+#Faz o download caso não exista
+if(!file.exists("mapas/layerdistrito.zip")){
+  download.file("http://dados.prefeitura.sp.gov.br/dataset/af41e7c4-ae27-4bfc-9938-170151af7aee/resource/9e75c2f7-5729-4398-8a83-b4640f072b5d/download/layerdistrito.zip", "mapas/layerdistrito.zip")
+}
+#Extrai arquivos
+if(!file.exists("mapas/LAYER_DISTRITO/DEINFO_DISTRITO.shp")){
+  if(dir.exists("mapas/LAYER_DISTRITO")){
+    unlink("mapas/LAYER_DISTRITO",recursive=TRUE)
+  }
+  unzip("mapas/layerdistrito.zip", exdir="mapas/")
+}
+#Carrega mapa distritos
+mapa_distritos <- sf::st_read("mapas/LAYER_DISTRITO/DEINFO_DISTRITO.shp") %>%  st_transform(4326) 
+
+
+unique(mapa_distritos$COD_SUB)
+bairros <- mapa_distritos %>% filter(COD_SUB=="11") %>% select(NOME_DIST) %>% st_set_geometry(NULL)
+################################################################3
+#Zonas_eleitorais_da_cidade_de_S%C3%A3o_Paulo - verificar
+#zonas_name= read.csv("/home/ochi/Documents/CPM/Vereadores_regiao/zonas", sep=";", fileEncoding = "Latin1")
+
+#x <- merge(CANDIDATO,zonas_name,by.x="NR_ZONA",by.y = "zona") %>% select(NR_ZONA,bairro)
+#x <- unique(x)
+#nrow(as.matrix(unique(CANDIDATO$NR_ZONA)))
+
+#if (nrow(as.matrix(unique(CANDIDATO$NR_ZONA))) ==   nrow(unique(x))) {
+#print("ok")  
+#}
+#existem 58 zonas para 96 distritos
+#nrow(as.matrix(unique(CANDIDATO$NR_ZONA)))
+
+
+#CANDIDATO <-  merge(CANDIDATO,zonas_name,by.x="NR_ZONA",by.y = "zona")
+
+#mapa_distritos %>% st_set_geometry(NULL)
+
+#install.packages("stringi")
+ # library("stringi")
+#NOME DO DISTRITO POR ZONA ELEITORAL
+#zonas_name<-zonas_name %>% mutate(bairro = toupper(stri_trans_general(zonas_name$bairro,"Latin-ASCII")))
+
+#COD DISTRITO POR DISTRITO
+#mapa_codes <- mapa_distritos %>%  st_set_geometry(NULL) %>% select(COD_DIST,NOME_DIST) 
+#mapa_codes<-mapa_codes %>% mutate(NOME_DIST = toupper(stri_trans_general(mapa_codes$NOME_DIST,"Latin-ASCII")))
+
+
+
+#mapa_codes <- mapa_distritos %>%  st_set_geometry(NULL) %>% select(COD_DIST,NOME_DIST,COD_SUB)
+#head(mapa_distritos)
+
+#mapa_codes %>% filter(COD_SUB =="11")
+# 
+
+#unique(CANDIDATO$NR_ZONA)
+
+
+
+
+
+
+##############################################
+
+
+# #escolhe o arquivo
+file <- "/home/ochi/Documents/CPM/Vereadores_regiao/zonas_eleitorais.csv"
+ #Verifica a codificação LINUX
+ encode <- as.character(read.table(pipe(paste("uchardet ",file))))
+# #Lê os dados  
+ZONAS_ELEITORAIS <- read.csv2(
+   file ,
+   fileEncoding=encode, 
+   header =TRUE ,
+   sep=";",
+   skipNul=TRUE,
+   na.strings=c("NA","NaN", " ","","null","undefined","#NULO#")) 
+
+bairros_zona_pinheiros <- ZONAS_ELEITORAIS %>% filter(BELA.VISTA == " PINHEIROS ")
+grep("ITAIM", ZONAS_ELEITORAIS,value=TRUE,fixed=TRUE)
+?grep
+
+
+#JARDIM_PAULISTA ======= zona 5
+#PINHEIROS ============= zona 251
+grep("VILA",ZONAS_ELEITORAIS$BELA.VISTA,value=TRUE)
+grep("VILA",ZONAS_ELEITORAIS$BELA.VISTA,value=FALSE)
+ZONAS_ELEITORAIS[88,1]
+grep("OLIMPIA",ZONAS_ELEITORAIS$BELA.VISTA.1,value=TRUE)
+grep("OLIMPIA",ZONAS_ELEITORAIS$BELA.VISTA.1,value=FALSE)
+
+grep("ITAIM",ZONAS_ELEITORAIS$BELA.VISTA.1,value=TRUE)
+
+########################################################################
+#MAIS VOTADOS
+
+CANDIDATO_PINHEIROS <- CANDIDATO %>% filter(NR_ZONA =="251")
+
+#CANDIDATO %>%
+# unique(CANDIDATO$NM_URNA_CANDIDATO) 
+max(CANDIDATO_PINHEIROS$QT_VOTOS_NOMINAIS)
+
+
+CANDIDATO_PINHEIROS_TOP <- CANDIDATO_PINHEIROS %>% slice_max(order_by =QT_VOTOS_NOMINAIS,n=6 ) %>% select(NM_URNA_CANDIDATO,QT_VOTOS_NOMINAIS,SG_PARTIDO,NM_CANDIDATO)
+
+
+CANDIDATO_PINHEIROS_TOP%>% 
+  mutate(NM_URNA_CANDIDATO = reorder(NM_URNA_CANDIDATO,QT_VOTOS_NOMINAIS)) %>%
+  ggplot(., aes(x=NM_URNA_CANDIDATO, y = QT_VOTOS_NOMINAIS)) +  
+    geom_bar(stat = "identity",aes(fill=NM_URNA_CANDIDATO), size = .3)+
+    xlab("Candidatos")+
+    ylab("Votos")+
+    ggtitle("Veradores mais votados de Pinheiros")+
+#IGNORADO PELO SCALE_FILL
+  #    labs(fill = "Candidatos")+ ?scale_fill_manual
+  #MAIS IMPORTANTE ,guide=guide_legend(reverse=T)########
+    scale_fill_manual("Candidatos",
+                    values = c("EDUARDO SUPLICY" = "red",
+                               "JANAINA LIMA" = "orange",
+                               "MARIO COVAS NETO" = "blue",
+                               "DANIEL ANNENBERG"= "blue",
+                               "FERNANDO HOLIDAY"="lightblue",
+                               "TRIPOLI" = "darkgreen")
+                    ,guide=guide_legend(reverse=T))+
+    theme(panel.ontop = TRUE,
+      panel.grid = element_blank(), 
+      line = element_blank(), 
+      rect = element_blank(), 
+      #text = element_blank(), 
+      axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      axis.text.x=element_blank(),
+#      axis.text.y=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.ticks.y=element_blank(),
+      plot.background = element_rect(fill = "white"))
+    
+#  geom_point(aes(col = NM_URNA_CANDIDATO), size = 1) 
+################################################################################
+################################################################################
+################################################################################
+#############MAIOR PORCETANGEM DO TOTAL NA REGIAO###############################
+
+#ls(CANDIDATO)
+######FILTRA
+CANDIDATO_PINHEIROS_PCT <- CANDIDATO %>% 
+  select(NM_URNA_CANDIDATO,
+         QT_VOTOS_NOMINAIS,
+         SG_PARTIDO,
+         NM_CANDIDATO,
+         NR_ZONA,
+         NR_CANDIDATO)
+####
+
+######VOTOS TOTAIS
+CPCT <- as.data.frame(
+  CANDIDATO_PINHEIROS_PCT %>% 
+    group_by(#NM_URNA_CANDIDATO,
+             #NM_CANDIDATO,
+             #SG_PARTIDO,
+             NR_CANDIDATO) %>% 
+    summarise(VOTOS_TOTAIS = sum(QT_VOTOS_NOMINAIS)
+            )
+        )
+#ou aggregate()?
+#aggregate(CANDIDATO_PINHEIROS_PCT$QT_VOTOS_NOMINAIS, by=list(Category=CANDIDATO_PINHEIROS_PCT$NR_CANDIDATO), FUN=sum)
+
+#head(CPCT)
+#head(CANDIDATO_PINHEIROS_PCT)
+
+CANDIDATO_PINHEIROS_PCT <- 
+  merge(CANDIDATO_PINHEIROS_PCT,CPCT,by.x = "NR_CANDIDATO",by.y = "NR_CANDIDATO") %>%
+  filter(NR_ZONA =="251")
+
+
+CANDIDATO_PINHEIROS_PCT <-
+  CANDIDATO_PINHEIROS_PCT %>%
+    mutate(PCT=QT_VOTOS_NOMINAIS/VOTOS_TOTAIS) %>%
+    arrange(desc(PCT)) %>%
+    #arrange(PCT,decreasing = TRUE)  %>%
+    head() %>%
+    select(NM_URNA_CANDIDATO,
+           PCT,
+           SG_PARTIDO,
+           NM_CANDIDATO)
+
+
+#############################################################
+CANDIDATO_PINHEIROS_PCT%>% 
+  mutate(NM_URNA_CANDIDATO = reorder(NM_URNA_CANDIDATO,PCT)) %>%
+    ggplot(., aes(x=NM_URNA_CANDIDATO, y = PCT)) +  
+    geom_bar(stat = "identity",aes(fill=NM_URNA_CANDIDATO), size = .3)+
+    xlab("Candidatos")+
+    ylab("Votos")+
+    ggtitle("Veradores com maior porcentagem do total de votos em pinheiros")+
+    scale_fill_manual("Candidatos", 
+                      values = c("SONINHA" = "magenta",
+                                 "JANAINA LIMA" = "darkorange",
+                                 "MARIO COVAS NETO" = "blue",
+                                 "DANIEL ANNENBERG"= "blue",
+                                 "SÂMIA BOMFIM" = "red",
+                                 "GILBERTO NATALINI"="darkgreen"),
+                      guide=guide_legend(reverse=T))+
+    theme(
+      panel.ontop = TRUE,   ## Note: this is to make the panel grid visible in this e example
+      panel.grid = element_blank(), 
+      line = element_blank(), 
+      rect = element_blank(), 
+      #text = element_blank(), 
+      axis.title.x=element_text(),
+      axis.title.y=element_text(),
+      axis.text.x=element_blank(),
+      #      axis.text.y=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.ticks.y=element_blank(),
+      plot.background = element_rect(fill = "white"))
+
+
+
+#############################################################
+CANDIDATO_PINHEIROS_PCT%>% 
+  mutate(NM_URNA_CANDIDATO = reorder(NM_URNA_CANDIDATO,PCT),PCT=PCT) %>%
+  ggplot(., aes(x=NM_URNA_CANDIDATO, y = PCT)) +  
+  geom_bar(stat = "identity",aes(fill=NM_URNA_CANDIDATO), size = .3)+
+  xlab("Candidatos")+
+  ylab("Votos")+
+  ggtitle("Veradores com maior porcentagem do total de votos em pinheiros")+
+  scale_fill_manual("Candidatos", 
+                    values = c("SONINHA" = "magenta",
+                               "JANAINA LIMA" = "darkorange",
+                               "MARIO COVAS NETO" = "blue",
+                               "DANIEL ANNENBERG"= "blue",
+                               "SÂMIA BOMFIM" = "red",
+                               "GILBERTO NATALINI"="darkgreen"),
+                    guide=guide_legend(reverse=T))+
+  theme(
+#    panel.ontop = TRUE,   ## Note: this is to make the panel grid visible in this e example
+#    panel.grid = element_blank(), 
+#    line = element_blank(), 
+#    rect = element_blank(), 
+    #text = element_blank(), 
+    axis.title.x=element_text(),
+    axis.title.y=element_text(),
+    axis.text.x=element_blank(),
+    #      axis.text.y=element_blank(),
+#    axis.ticks.x=element_blank(),
+#    axis.ticks.y=element_blank(),
+#    plot.background = element_rect(fill = "white"))
+)+
+#  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+   scale_y_continuous(labels = scales::percent_format(accuracy = 1),breaks = scales::pretty_breaks(n = 10))
+```
